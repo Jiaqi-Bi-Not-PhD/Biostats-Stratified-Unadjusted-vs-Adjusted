@@ -1,0 +1,97 @@
+---
+title: "A4Q3"
+author: "Jiaqi Bi"
+output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+urlcolor: blue
+header-includes:    
+  - \usepackage{lastpage}
+  - \usepackage{fancyhdr}
+  - \usepackage{setspace}
+  - \usepackage{float}
+  - \pagestyle{fancy}
+  - \fancyhead[CO, CE]{Jiaqi Bi}
+  - \fancyhead[LE, RO]{STATS9864 Assignment 1}
+  - \fancyfoot[CO, CE]{\thepage \ of \pageref{LastPage}}
+  - \floatplacement{figure}{H}
+mainfont: Times New Roman
+fontsize: 12pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Stratified Unadjusted and Marginal
+
+```{r}
+un_est <- function(a, b, c, d) {
+  
+  n1= a + c
+  n2 = b + d
+  m1 = a + b
+  m2 = c + d
+  
+  p1 = a/(a+c)
+  p2 = b/(b+d)
+  RD = p1 - p2
+  RR = p1/p2
+  OR = (p1/(1-p1))/(p2/(1-p2))
+  
+  log.RR = log(RR)
+  log.OR = log(OR)
+  
+  var.RD = (p1 * (1 - p1))/n1 + (p2 * (1-p2))/n1
+  var.logRR = 1/a - 1/n1 + 1/b + 1/n2
+  var.logOR = 1/a + 1/b + 1/c + 1/d
+  
+  CI.RD = c(RD - 1.96 * sqrt(var.RD), RD + 1.96 * sqrt(var.RD))
+  CI.logRR = c(log.RR - 1.96 * sqrt(var.logRR), 
+               log.RR + 1.96 * sqrt(var.logRR))
+  CI.logOR = c(log.OR - 1.96 * sqrt(var.logOR),
+               log.OR + 1.96 * sqrt(var.logOR))
+  CI.RR = exp(CI.logRR)
+  CI.OR = exp(CI.logOR)
+  
+  
+  return(list(
+    RD=RD, 
+    RR=RR, 
+    OR=OR,
+    log.RR=log.RR,
+    log.OR=log.OR,
+    var.RD=var.RD,
+    var.logRR=var.logRR,
+    var.logOR=var.logOR,
+    CI.RD=CI.RD,
+    CI.RR=CI.RR,
+    CI.OR=CI.OR
+  ))
+}
+
+## Stratum 1
+un_est(18, 162, 25, 252)
+## Stratum 2
+un_est(12, 26, 123, 431)
+## Stratum 3
+un_est(27, 121, 104, 475)
+## Stratum 4
+un_est(7, 21, 3, 25)
+## Stratum 5
+un_est(14, 353, 7, 359)
+## Marginal
+a <- c(18, 12, 27, 7, 14)
+b <- c(162, 26, 121, 21, 353)
+c <- c(25, 123, 104, 3, 7)
+d <- c(252, 431, 475, 25, 359)
+a <- sum(a)
+b <- sum(b)
+c <- sum(c)
+d <- sum(d)
+un_est(a, b, c, d)
+```
+
+
+
