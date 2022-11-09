@@ -27,6 +27,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Stratified Unadjusted and Marginal
 
 ```{r, eval = FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
 un_est <- function(a, b, c, d) {
   
   n1= a + c
@@ -72,15 +75,15 @@ un_est <- function(a, b, c, d) {
 }
 
 ## Stratum 1
-un_est(18, 162, 25, 252)
+res.str1 <- un_est(18, 162, 25, 252)
 ## Stratum 2
-un_est(12, 26, 123, 431)
+res.str2 <- un_est(12, 26, 123, 431)
 ## Stratum 3
-un_est(27, 121, 104, 475)
+res.str3 <- un_est(27, 121, 104, 475)
 ## Stratum 4
-un_est(7, 21, 3, 25)
+res.str4 <- un_est(7, 21, 3, 25)
 ## Stratum 5
-un_est(14, 353, 7, 359)
+res.str5 <- un_est(14, 353, 7, 359)
 ## Marginal
 a <- c(18, 12, 27, 7, 14)
 b <- c(162, 26, 121, 21, 353)
@@ -90,7 +93,16 @@ a <- sum(a)
 b <- sum(b)
 c <- sum(c)
 d <- sum(d)
-un_est(a, b, c, d)
+res.mar <- un_est(a, b, c, d)
+df <- tibble(res.str1$CI.RR, res.str2$CI.RR, res.str3$CI.RR, res.str4$CI.RR, res.str5$CI.RR, res.mar$CI.RR)
+df <- t(df)
+df <- as.data.frame(df)
+colnames(df) <- c("lower", "upper")
+rownames(df) <- c("Stratum 1", "Stratum 2", "Stratum 3", "Stratum 4", "Stratum 5", "Marginal")
+df <- rownames_to_column(df) 
+df <- rename(df, c("Strata" = "rowname"))
+
+
 ```
 
 ## Stratified-Adjusted Estimator MH Estimates
