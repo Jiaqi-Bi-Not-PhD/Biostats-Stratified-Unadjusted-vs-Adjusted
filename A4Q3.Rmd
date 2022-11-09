@@ -26,7 +26,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Stratified Unadjusted and Marginal
 
-```{r, eval = FALSE}
+```{r, eval = TRUE, include = FALSE}
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
@@ -94,6 +94,7 @@ b <- sum(b)
 c <- sum(c)
 d <- sum(d)
 res.mar <- un_est(a, b, c, d)
+
 df <- tibble(res.str1$CI.RR, res.str2$CI.RR, res.str3$CI.RR, res.str4$CI.RR, res.str5$CI.RR, res.mar$CI.RR)
 df <- t(df)
 df <- as.data.frame(df)
@@ -101,9 +102,15 @@ colnames(df) <- c("lower", "upper")
 rownames(df) <- c("Stratum 1", "Stratum 2", "Stratum 3", "Stratum 4", "Stratum 5", "Marginal")
 df <- rownames_to_column(df) 
 df <- rename(df, c("Strata" = "rowname"))
-
-
 ```
+
+```{r}
+## Plot RR CI unadjusted
+ggplot(df, aes(x=Strata)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper)) +
+  scale_y_continuous(limits = c(0, 3.5))
+```
+
 
 ## Stratified-Adjusted Estimator MH Estimates
 ```{r, eval = FALSE}
