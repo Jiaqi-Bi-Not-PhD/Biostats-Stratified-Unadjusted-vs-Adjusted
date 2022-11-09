@@ -13,7 +13,7 @@ header-includes:
   - \usepackage{float}
   - \pagestyle{fancy}
   - \fancyhead[CO, CE]{Jiaqi Bi}
-  - \fancyhead[LE, RO]{STATS9864 Assignment 1}
+  - \fancyhead[LE, RO]{BIOSTAT9510 Assignment 4}
   - \fancyfoot[CO, CE]{\thepage \ of \pageref{LastPage}}
   - \floatplacement{figure}{H}
 mainfont: Times New Roman
