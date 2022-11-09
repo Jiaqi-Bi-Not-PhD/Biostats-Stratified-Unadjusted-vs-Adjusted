@@ -134,7 +134,7 @@ ggplot(df.OR, aes(x=Strata)) +
 ```
 
 
-## Stratified-Adjusted Estimator MH Estimates
+## MH Stratified-Adjusted
 ```{r, eval = TRUE, results = FALSE}
 voltage <- array(
   c(18, 162, 25, 252,
