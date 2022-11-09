@@ -26,7 +26,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Stratified Unadjusted and Marginal
 
-```{r}
+```{r, eval = FALSE}
 un_est <- function(a, b, c, d) {
   
   n1= a + c
@@ -94,7 +94,7 @@ un_est(a, b, c, d)
 ```
 
 ## Stratified-Adjusted Estimator MH Estimates
-```{r}
+```{r, eval = FALSE}
 voltage <- array(
   c(18, 162, 25, 252,
     12, 26, 123, 431,
