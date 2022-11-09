@@ -9,6 +9,7 @@ urlcolor: blue
 header-includes:    
   - \usepackage{lastpage}
   - \usepackage{fancyhdr}
+  - \usepackage{lscape}
   - \usepackage{setspace}
   - \usepackage{float}
   - \pagestyle{fancy}
@@ -26,10 +27,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Stratified Unadjusted and Marginal
 
-```{r, eval = TRUE, include = FALSE}
+```{r, eval = TRUE, results = FALSE, message = FALSE}
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
+library(latex2exp)
 un_est <- function(a, b, c, d) {
   
   n1= a + c
@@ -102,18 +104,38 @@ colnames(df) <- c("lower", "upper")
 rownames(df) <- c("Stratum 1", "Stratum 2", "Stratum 3", "Stratum 4", "Stratum 5", "Marginal")
 df <- rownames_to_column(df) 
 df <- rename(df, c("Strata" = "rowname"))
+
+
+df.OR <- tibble(res.str1$CI.OR, res.str2$CI.OR, res.str3$CI.OR, res.str4$CI.OR, res.str5$CI.OR, res.mar$CI.OR)
+df.OR <- t(df.OR)
+df.OR <- as.data.frame(df.OR)
+colnames(df.OR) <- c("lower", "upper")
+rownames(df.OR) <- c("Stratum 1", "Stratum 2", "Stratum 3", "Stratum 4", "Stratum 5", "Marginal")
+df.OR <- rownames_to_column(df.OR) 
+df.OR <- rename(df.OR, c("Strata" = "rowname"))
 ```
 
 ```{r}
 ## Plot RR CI unadjusted
 ggplot(df, aes(x=Strata)) +
   geom_errorbar(aes(ymin = lower, ymax = upper)) +
-  scale_y_continuous(limits = c(0, 3.5))
+  scale_y_continuous(limits = c(0, 3.5)) +
+  xlab("Strata") +
+  ylab(TeX("CI of $\\hat{\\theta}$")) +
+  ggtitle("Comparison of Unadjusted CI of RR")
+
+## Plot OR CI Unadjusted
+ggplot(df.OR, aes(x=Strata)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper)) +
+  scale_y_continuous(limits = c(0, 13), breaks = seq(0,13,2)) +
+  xlab("Strata") +
+  ylab(TeX("CI of $\\hat{\\theta}$")) +
+  ggtitle("Comparison of Unadjusted CI of OR")
 ```
 
 
 ## Stratified-Adjusted Estimator MH Estimates
-```{r, eval = FALSE}
+```{r, eval = TRUE, results = FALSE}
 voltage <- array(
   c(18, 162, 25, 252,
     12, 26, 123, 431,
@@ -182,12 +204,83 @@ MH.adj_est <- function(ak, bk, ck, dk) {
     CI.OR = CI.OR
   ))
 }
-
 MH.adj_est(ak, bk, ck, dk)
+
+adj.df.RR <- MH.adj_est(ak, bk, ck, dk)$CI.RR
+adj.df.OR <- MH.adj_est(ak, bk, ck, dk)$CI.OR
 ```
+
+```{r}
+## Combined graph of Unadjusted & adjusted
+df[nrow(df) + 1,] <- c("MH Adjusted", adj.df.RR)
+df.OR[nrow(df.OR) + 1,] <- c("MH Adjusted", adj.df.OR)
+df$lower <- as.numeric(df$lower)
+df$upper <- as.numeric(df$upper)
+df.OR$lower <- as.numeric(df.OR$lower)
+df.OR$upper <- as.numeric(df.OR$upper)
+
+## Plot RR CI unadjusted vs. adjusted
+ggplot(df, aes(x=Strata)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper)) +
+  scale_y_continuous(limits = c(0, 4.5), breaks = seq(0,6,1)) +
+  xlab("Strata") +
+  ylab(TeX("CI of $\\hat{\\theta}$")) +
+  ggtitle("Comparison of Unadjusted and Adjusted CI of RR")
+
+## Plot OR CI Unadjusted vs. adjusted
+ggplot(df.OR, aes(x=Strata)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper)) +
+  scale_y_continuous(limits = c(0, 13), breaks = seq(0, 13, 2)) +
+  xlab("Strata") +
+  ylab(TeX("CI of $\\hat{\\theta}$")) +
+  ggtitle("Comparison of Unadjusted and Adjusted CI of OR")
+```
+
 
 ## Conclusion
 
+Based on those graphs that compare different stratum and unadjusted vs. adjusted CIs generated through R code, we can conclude that marginal unadjusted analysis return a smaller estimate and narrower CI. MH adjusted analysis gives higher range of RR than unadjusted analysis, it also returns higher estimate on the measure of both RR and OR. It may be caused by the imbalanecs in the number of observing objects from each stratum, that some of strata have more participants than others. 
+
+
+\newpage
+
+
+\begin{landscape}
+\begin{table}[h]
+\centering
+\caption{Marginal and Stratified Unadjusted Measure}
+\begin{tabular}{ccccccc}
+                 &              &              & Stratum      &              &              &              \\
+Measure          & 1            & 2            & 3            & 4            & 5            & Marginal     \\ \hline
+RD               & 0.027        & 0.032        & 0.003        & 0.243        & 0.171        & -0.078       \\
+$V(RD)$          & 0.011        & 0.001        & 0.002        & 0.046        & 0.022        & 0.001        \\
+$95\%$ CI for RD & (-0.18,0.23) & (-0.03,0.09) & (-0.09,0.10) & (-0.18,0.66) & (-0.12,0.46) & (-0.14,0.01) \\
+                 &              &              &              &              &              &              \\
+RR               & 1.070        & 1.562        & 1.015        & 1.533        & 1.345        & 0.747        \\
+$\log(RR)$       & 0.067        & 0.446        & 0.015        & 0.427        & 0.296        & -0.291       \\
+$V(\log(RR))$    & 0.041        & 0.117        & 0.039        & 0.112        & 0.028        & 0.012        \\
+$95\%$ CI for RR & (0.72,1.59)  & (0.80,3.05)  & (0.69,1.50)  & (0.80,2.96)  & (0.97,1.87)  & (0.60,0.92)  \\
+                 &              &              &              &              &              &              \\
+OR               & 1.120        & 1.617        & 1.019        & 2.778        & 2.034        & 0.672        \\
+$\log(OR)$       & 0.113        & 0.481        & 0.019        & 1.022        & 0.710        & -0.397       \\
+$V(\log(OR))$    & 0.106        & 0.132        & 0.057        & 0.564        & 0.220        & 0.019        \\
+$95\%$ CI for OR & (0.59,2.12)  & (0.79, 3.30) & (0.64,1.63)  & (0.64,12.10) & (0.81, 5.10) & (0.51, 0.88) \\ \hline
+\end{tabular}
+\end{table}
+\end{landscape}
+
+\begin{table}[h]
+\centering
+\caption{MH Adjusted Measure}
+\begin{tabular}{lll}
+Measure      & MH Estimate & 95\% CI     \\ \hline
+OR           & 1.283       & (1.06,1.55) \\
+$V(OR_{MH})$ & 0.009       &             \\
+             &             &             \\
+RR           & 2.268       & (1.22,4.21) \\
+$V(RR_{MH})$ & 0.100       &             \\ \hline
+\end{tabular}
+\end{table}
 
 
 
