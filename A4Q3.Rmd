@@ -180,7 +180,11 @@ MH.adj_est <- function(ak, bk, ck, dk) {
   RR.mh <- nume.RR/deno.RR
   
   ## Stratified-adjusted MH test and CI
+  #### Under Null test-based variance, inherently incorrect
   chi.square.MH <- ((sum(ak-n1k * (m1k/Nk)))^2)/(sum((m1k * m2k * n1k * n2k)/(Nk^2 * (Nk - 1))))
+  #### 5 Sums
+  S1 <- sum((ak * dk)/Nk); S2 <- sum((bk * ck)/Nk); S3 <- sum(((ak + dk)*ak*dk)/Nk^2);
+  S4 <- sum(((bk + ck)*bk*ck)/Nk^2); S5 <- sum(((ak+dk)*bk*ck+(bk+ck)*ak*dk)/Nk^2)
   #### RR CI
   log.RR = log(RR.mh)
   var.logRR.mh = (log.RR^2)/(chi.square.MH^2)
@@ -189,7 +193,7 @@ MH.adj_est <- function(ak, bk, ck, dk) {
   CI.RR = exp(CI.logRR.MH)
   #### OR CI
   log.OR = log(OR.mh)
-  var.logOR.mh = (log.OR^2)/(chi.square.MH^2)
+  var.logOR.mh = S3/(2^S1^2) + S5/(2*S1*S2) + S4/(2*S2^2)
   CI.logOR.mh = c(log.OR - 1.96 * sqrt(var.logOR.mh),
                   log.OR + 1.96 * sqrt(var.logOR.mh))
   CI.OR = exp(CI.logOR.mh)
@@ -275,7 +279,7 @@ $95\%$ CI for OR & (0.59,2.12)  & (0.79, 3.30) & (0.64,1.63)  & (0.64,12.10) & (
 \begin{tabular}{lll}
 Measure      & MH Estimate & 95\% CI     \\ \hline
 OR           & 1.283       & (1.06,1.55) \\
-$V(OR_{MH})$ & 0.009       &             \\
+$V(OR_{MH})$ & 0.017       &             \\
              &             &             \\
 RR           & 2.268       & (1.22,4.21) \\
 $V(RR_{MH})$ & 0.100       &             \\ \hline
